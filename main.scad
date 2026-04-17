@@ -18,12 +18,10 @@ finger_thickness = 15;
 plate_thickness = back_depth - 2;
 plate_height = 35 + finger_thickness;
 
-
-
 support_length = finger_length  + plate_thickness;
 support_thickness = 5;
 
-number_of_clamps = 15;
+number_of_clamps = 5;
 number_of_fingers = number_of_clamps + 1;
 
 total_length = (number_of_fingers * finger_width) + (number_of_clamps * bar_thickness);
