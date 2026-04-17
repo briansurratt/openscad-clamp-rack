@@ -1,6 +1,7 @@
 $fn = $preview ? 32 : 128;
 
-include <threads-scad/threads.scad>
+include <BOSL2/std.scad>
+include <BOSL2/screws.scad>
 
 bar_thickness = 7;
 bar_width = 20;
@@ -13,6 +14,7 @@ finger_length = bar_width + 10;
 finger_thickness = 15;
 
 
+// this is the part that touches the wall
 plate_thickness = back_depth - 2;
 plate_height = 35 + finger_thickness;
 
@@ -21,11 +23,12 @@ plate_height = 35 + finger_thickness;
 support_length = finger_length  + plate_thickness;
 support_thickness = 5;
 
-number_of_clamps = 2;
+number_of_clamps = 15;
 number_of_fingers = number_of_clamps + 1;
 
 total_length = (number_of_fingers * finger_width) + (number_of_clamps * bar_thickness);
 
+echo(str("total_length: ", total_length /25.4, " inches"));
 
 module horizontal_plane() {
 
@@ -59,19 +62,28 @@ module horizontal_plane() {
 
 }
 
-
-horizontal_plane();
-supports();
+module vertical_plane() {
+    translate([-back_depth-bar_thickness/2,-finger_width/2,0]) {
+        cube(size=[plate_thickness, total_length, plate_height], center=false);
+    }
+}
 
 module supports() {
-
     for (i=[0:number_of_fingers-1]) {
         translate([0, i * (finger_width  + bar_thickness), 0]) {
             support();
         }
     }
-
 }
+
+module clamp_rack() {
+    horizontal_plane();
+    vertical_plane();
+    supports();
+}
+
+
+
 
 module finger() {
 
@@ -105,5 +117,23 @@ module support() {
 }
 
 
+module screw_holes() {
 
-#CountersunkClearanceHole(5, 8, [7,7,0], [0,0,0]);
+    xTranslate = -back_depth-bar_thickness/2 + plate_thickness;
+    zTranslate = plate_height/2;
+
+    for (i=[0:number_of_clamps-1]) {
+        translate([xTranslate,finger_width / 2 + bar_thickness / 2 + i * (finger_width  + bar_thickness),  zTranslate]) {
+            rotate([0, 90, 0])             
+            screw_hole(spec="#8-32", length=plate_thickness + 2 ,head="flat",counterbore=0,anchor=TOP);
+        }
+        
+    }
+
+}
+
+
+difference() {
+    clamp_rack();
+    screw_holes();
+}
